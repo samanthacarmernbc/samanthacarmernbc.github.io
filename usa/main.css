@@ -1,0 +1,126 @@
+
+.page-header,
+.panel-title,
+label {
+    font-weight: lighter
+}
+
+.btn,
+.page-header {
+    text-transform: uppercase
+}
+
+body {
+    font-family: "Open Sans", Helvetica, Arial;
+    background-color: #fafafa;
+    color: #444
+}
+
+label {
+    font-size: 110%
+}
+
+.panel-body {
+    display: grid
+}
+
+.panel-header {
+    margin-top: 70px
+}
+
+.page-header {
+    font-size: 300%;
+    margin-bottom: 30px
+}
+
+.panel-title {
+    font-size: 150%
+}
+
+.label {
+    display: inline-flex
+}
+
+.form-control {
+    margin-bottom: 10px;
+    height: inherit
+}
+
+.redactor_box,
+input.form-control,
+option,
+select {
+    border-radius: 3px;
+    border-color: #eee;
+    font-size: 16px;
+    line-height: normal;
+    margin-right: 0;
+    padding: 15px 20px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    width: 100%;
+    color: #444;
+    font-weight: 400;
+    background: #fff
+}
+
+.btn {
+    background-color: #1cadce;
+    font-weight: 700;
+    font-size: 16px;
+    display: inline-block;
+    padding: 15px 15px;
+    border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    color: #fff;
+    transition: background 250ms;
+    -webkit-transition: background 250ms;
+    margin: 30px auto 30px;
+    min-width: 170px
+}
+
+#final_url {
+    margin-top: 2%;
+    margin-bottom: 5%;
+    font-weight: lighter;
+    font-size: 110%
+}
+
+.navbar-brand img {
+    max-height: 40px
+}
+
+nav.navbar-main {
+    padding: 2px 0;
+    background-color: #2F2F2F;
+    position: fixed;
+    width: 100%;
+    z-index: 99;
+    border-radius: 0
+}
+
+.brand {
+    margin-top: -10px
+}
+
+.custom-select {
+  width: 145px;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 100;
+}
+p {
+  font-style: italic;
+  font-size: 85%;
+}
+.extra-field {
+  display: inline-flex;
+}
+.extra-field-input {
+  margin: 10px 40px 10px 40px !important;
+}
+.add-field-btn {
+  font-size: 12px;
+}

@@ -1,0 +1,422 @@
+<html>
+  
+   <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>USA Link Creator</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="https://branch.io/img/favicon/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://branch.io/img/favicon/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://branch.io/img/favicon/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://branch.io/img/favicon/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://branch.io/img/favicon/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="https://branch.io/img/favicon/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://branch.io/img/favicon/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://branch.io/img/favicon/apple-touch-icon-152x152.png">
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link href="css" rel="stylesheet" type="text/css">
+
+   <!--  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  -->
+<script src="jquery.min.js"></script>
+<script src="bootstrap.min.js"></script>
+<link rel="stylesheet" href="bootstrap.min.css">
+
+    <script>
+       var domFieldCount = 0;
+       var intFieldCount = 0;
+
+      (function(b,r,a,n,c,h,_,s,d,k){if(!b[n]||!b[n]._q){for(;s<_.length;)c(h,_[s++]);d=r.createElement(a);d.async=1;d.src="https://cdn.branch.io/branch-latest.min.js";k=r.getElementsByTagName(a)[0];k.parentNode.insertBefore(d,k);b[n]=h}})(window,document,"script","branch",function(b,r){b[r]=function(){b._q.push([r,arguments])}},{_q:[],_v:1},"addListener applyCode banner closeBanner creditHistory credits data deepview deepviewCta first getCode init link logout redeem referrals removeListener sendSMS setBranchViewData setIdentity track validateCode".split(" "), 0);
+
+      function addField(element) {
+        if (element.parentElement.id == "extra_param_panel_body_international") {
+          intFieldCount++;
+          var fieldCount = intFieldCount;
+        } else {
+          domFieldCount++;
+          var fieldCount = domFieldCount;
+        }
+
+        var newField = '<span class="extra-field"><input type="text" id="' + element.parentElement.id + '_key_' + fieldCount + '" class="extra-field-input form-control" value="" placeholder="Key"/><input type="text" id="' + element.parentElement.id + '_value_'+ fieldCount + '" class="extra-field-input form-control" value="" placeholder="Value"/></span>';
+        element.parentElement.innerHTML += newField;
+      }
+
+      function createLink() {
+        branch.init('key_live_aeRaY7Ng4DUx9D613eaIGfgdzsnTgXr1');
+
+        var marketingTitle = document.getElementById('marketing_title').value.trim();
+        var alias = document.getElementById('alias').value.trim();
+        var canonical_url = document.getElementById('canonical_url').value.trim();
+        var show = document.getElementById('show_selector').value.trim();
+        var channel_selector = document.getElementById('channel_selector').value;
+        var campaign_type = document.getElementById('campaign_type_selector').value;
+        var utm_source = document.getElementById('source_selector').value;
+        var campaign_override = document.getElementById('campaign_override').value.trim();
+        var source_override = document.getElementById('source_override').value.trim();
+        var quick_link = document.getElementById('quick_link').checked;
+        var utm_medium = document.getElementById('utm_medium').value.trim();
+        var web_only = document.getElementById('webonly_selector').value;
+        var fallback_url = document.getElementById('fallback_url_text').value.trim();
+        var deeplink_path = document.getElementById('deeplink_path_text').value.trim();
+        var android_deeplink_path = document.getElementById('android_deeplink_path_text').value.trim();
+        var ios_deeplink_path = document.getElementById('ios_deeplink_path_text').value.trim();
+        var tags_string = document.getElementById('tags_text').value.trim();
+
+
+        var ogTitle = document.getElementById('og_title').value.trim();
+        var ogDescription = document.getElementById('og_description').value.trim();
+        var ogImage = document.getElementById('og_image').value.trim();
+        //var ogUrl = document.getElementById('og_url').value.trim();
+        //var ogVideo = document.getElementById('og_video').value.trim();
+        //var ogType = document.getElementById('og_type').value.trim();
+
+        var campaign = "";
+        var channel = "";
+        var source = "";
+
+        var tags_array = [];
+
+        var rawMonth = new Date().getMonth() + 1;
+        var month = "";
+        var defaultCampaign = "";
+
+        if (rawMonth > 9){
+          month = rawMonth.toString();
+        } else {
+          month = '0' + rawMonth.toString();
+        }
+
+
+        if (source_override != null && source_override != "") {
+          channel = source_override;
+          source = source_override;
+        } else {
+          channel = channel_selector;
+          source = utm_source;
+        }
+
+
+        defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + '-' + show + '-' + utm_medium;
+
+
+        if (campaign_override != null && campaign_override != "") {
+          campaign = campaign_override;
+        } else {
+          campaign = defaultCampaign;
+        }
+
+        if (marketingTitle == null || marketingTitle == ""){ marketingTitle = defaultCampaign }
+
+        if (tags_string != null && tags_string != ""){
+          if (tags_string.includes(',')){
+            var tags_split = tags_string.split(',');
+            tags_split.forEach(element => tags_array.push(element.trim()));
+          } else {
+            tags_array.push(tags_string);
+          }
+        } 
+
+        tags_array.push(show,utm_source);
+
+        var nbcLinkData = {
+          tags: tags_array,
+          channel: channel,
+          campaign: campaign,
+          data: {
+          "$marketing_title": marketingTitle,
+          "$canonical_url":canonical_url,
+          "utm_campaign": campaign,
+          "utm_term": channel,
+          "utm_source": source,
+          "utm_medium": utm_medium,
+          "utm_content": show
+          }
+        };
+
+        //set og parameters
+        if (ogTitle != null && ogTitle != "") { nbcLinkData.data["$og_title"] = ogTitle }
+        if (ogDescription != null && ogDescription != "") { nbcLinkData.data["$og_description"] = ogDescription }
+        if (ogImage != null && ogImage != "") { nbcLinkData.data["$og_image_url"] = ogImage }
+        // (ogUrl != null && ogUrl != "") { nbcLinkData.data["$og_url"] = ogUrl }
+        //if (ogType != null && ogType != "") { nbcLinkData.data["$og_type"] = ogType }
+        //if (ogVideo != null && ogVideo != "") { nbcLinkData.data["$og_video"] = ogVideo }
+        if (alias != null && alias != "") { nbcLinkData["alias"] = alias }
+        if (web_only != null && web_only != "false") { nbcLinkData.data["$web_only"] = web_only }
+        if (deeplink_path != null && deeplink_path != "") { nbcLinkData.data["$deeplink_path"] = deeplink_path }
+        if (android_deeplink_path != null && android_deeplink_path != "") { nbcLinkData.data["$android_deeplink_path"] = android_deeplink_path }
+        if (ios_deeplink_path != null && ios_deeplink_path != "") { nbcLinkData.data["$ios_deeplink_path"] = ios_deeplink_path }
+
+        if (fallback_url != null && fallback_url != "") {
+          nbcLinkData.data["$fallback_url"] = fallback_url;
+          nbcLinkData.data["$desktop_url"] = fallback_url;
+        } else {
+          nbcLinkData.data["$desktop_url"] = canonical_url;
+        }
+
+        //set quick link
+        if (quick_link) {
+          nbcLinkData.data["~marketing"] = true;
+          nbcLinkData.type = 2;
+        }
+
+        var i;
+        for (i = 1; i <= intFieldCount; i++) {
+          var key = document.getElementById('extra_param_panel_body_international_key_' + i).value;
+          var value = document.getElementById('extra_param_panel_body_international_value_' + i).value;
+          if (key != null && key != "" && value != null) { // allowing for an empty value, but not an empty key
+            console.log('int key: ' + key);
+            console.log('int value: ' + value);
+            nbcLinkData.data[key] = value;
+          }
+        }
+
+        //https://www.nbc.com/ap-bio/video/pilot-catfish/3657085
+
+        // $.get(canonical_url, function(data) {
+        //     var iosURL = $(data).filter('meta[property="al:ios:url"]').attr("content");
+        //     var androidURL = $(data).filter('meta[property="al:android:url"]').attr("content");
+        //     console.log(iosURL);
+        //     nbcLinkData.data["$ios_deeplink_path"] = iosURL;
+        //     nbcLinkData.data["$android_deeplink_path"] = androidURL;
+        //     nbcLinkData.data["$deeplink_path"] =  iosURL;
+        //
+        //     branch.link(nbcLinkData, function(err, finalLink) {
+        //       console.log("Creating BRanch Link");
+        //       if (err == null) {
+        //         document.getElementById('final_url').value = finalLink;
+        //       }
+        //       else {
+        //         console.log(err, finalLink);
+        //         document.getElementById('final_url').value = err;
+        //       }
+        //     });
+        // });
+        // Create USA Link
+        branch.link(nbcLinkData, function(err, finalLink) {
+          console.log("Creating Branch Link");
+          if (err == null) {
+            document.getElementById('final_url').value = finalLink;
+          }
+          else {
+            console.log(err, finalLink);
+            document.getElementById('final_url').value = err;
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+
+
+    <nav class="navbar navbar-default navbar-static-top navbar-main">
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-brand brand">
+            <a href="https://branch.io/" target="_blank" class="logo-container">
+              <div class="branch-logo"><img src="logo_white.png" alt="BranchMetrics" title="Branch Metrics"></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="panel-header page-header">
+        <br>
+        USA Link Creator
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-body">
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#basic_fields" aria-expanded="false" aria-controls="other_fields">
+                  Basic Setup
+                </a>
+              </h3>
+            </div>
+            <div id="basic_fields" class="collapse show">
+              <div class="panel-body">
+                  <label>Link Title (Optional):
+                    <p>Name of the link on the Branch Quick Links dashboard page. Leave blank for this to be auto-generated.</p>
+                    <input type="text" id="marketing_title" class="form-control" value="">
+                  </label>
+                  <label>Vanity Alias (optional):
+                    <p>Short Link Text ex: usa.app.link/LinkName<br>
+                    NOTE: Cannot be updated once created</p>
+                    <input type="text" id="alias" class="form-control" value="">
+                  </label>
+                  <label>Destination (Required):
+                    <p>What URL do you want to link to?</p>
+                    <input type="text" id="canonical_url" class="form-control" value="">
+                  </label>
+                  <label>Show (Required):
+                    <p>Which Show is this link associated with?</p>
+                    <input type="text" id="show_selector" class="form-control" value="">
+                  </label>
+                  <label>Channel (Required):
+                    <p>Where will you post this link?</p>
+                    <select class="form-control custom-select" id="channel_selector">
+                      <option value="social">Social</option>
+                      <option value="web">Web</option>
+                      <option value="email">Email</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </label>
+                  <label>Platform (Required):
+                    <p>Where will this link be posted?</p>
+                    <select class="form-control custom-select" id="source_selector">
+                      <option value="dotcom">DotCom</option>
+                      <option label="facebook">Facebook</option>
+                      <option label="instagram">Instagram</option>
+                      <option value="twitter">Twitter</option>
+                      <option label="snapchat">Snapchat</option>
+                      <option label="youtube">YouTube</option>
+                      <option label="email">Email</option>
+                      <option label="talent">Talent</option>
+                      <option label="other">Other</option>
+                    </select>
+                  </label>
+                  <label>Campaign Type (Required):
+                    <p>What type of campaign is this?</p>
+                    <select class="form-control custom-select" id="campaign_type_selector">
+                      <option value="link-post">Link Post</option>
+                      <option value="blog-post-testing">Blog Post Testing</option>
+                      <option value="show-page-testing">Show Page Testing</option>
+                      <option value="site-nav">Site Nav</option>
+                      <option value="newsletter">Newsletter</option>
+                      <option value="youtube">YouTube</option>
+                      <option value="app-download">App Download</option>
+                      <option value="tune-in">Tune In</option>
+                      <option value="journey">Journey</option>
+                      <option value="talent">Talent</option>
+                    </select>
+                  </label>
+                  <label>URL Destination (Required):
+                    <p>What sort of content are you directing to?</p>
+                    <select class="form-control custom-select" id="utm_medium">
+                      <option value="full-episode">full-episode</option>
+                      <option label="clip">clip</option>
+                      <option label="show-page">show-page</option>
+                      <option label="home-page">home-page</option>
+                      <option label="movie">movie</option>
+                      <option label="web-page">web-page</option>
+                      <option label="other">other</option>
+                    </select>
+                  </label>
+                  <label>Web Only (Required):
+                    <p>Should this link go only to web (not into the app)?</p>
+                    <select class="form-control custom-select" id="webonly_selector">
+                      <option value="true">True</option>
+                      <option value="false">False</option>
+                    </select>
+                  </label>
+                  <label>Tags (Optional):
+                    <p>What tags should be associated with this traffic? Separate each tag with a comma. If left blank, this will still contain show name and platform.</p>
+                    <input type="text" id="tags_text" class="form-control" value="">
+                  </label>
+                  <label>Fallback URL (Optional):
+                    <p>Brand URL/Fallback destination; where the user will go on desktop or mobile (instead of the app store) if they don't have the app</p>
+                    <input type="text" id="fallback_url_text" class="form-control" value="">
+                  </label>
+                  <label>Deeplink Path (Optional):
+                    <p>Deeplink path of the destination in the app, ex: /shows/backyard-envy</p>
+                    <input type="text" id="deeplink_path_text" class="form-control" value="">
+                  </label>
+                  <label>Android Deeplink Path (Optional):
+                    <p>Android-specific deeplink path of the destination in the app, ex: /shows/backyard-envy</p>
+                    <input type="text" id="android_deeplink_path_text" class="form-control" value="">
+                  </label>
+                  <label>iOS Deeplink Path (Optional):
+                    <p>iOS-specific deeplink path of the destination in the app, ex: /shows/backyard-envy</p>
+                    <input type="text" id="ios_deeplink_path_text" class="form-control" value="">
+                  </label>
+                  <label>Facebook Card Title (Optional):
+                    <p>Specifies a title to show if the link is posted on social media.</p>
+                    <input type="text" id="og_title" class="form-control" value="">
+                  </label>
+                  <label>Facebook Card Description (Optional):
+                    <p>Specifies a description to show if the link is posted on social media.</p>
+                    <input type="text" id="og_description" class="form-control" value="">
+                  </label>
+                  <label>Facebook Card Image URL (Optional):
+                    <p>Specifies an image to show if the link is posted on social media.</p>
+                    <input type="text" id="og_image" class="form-control" value="">
+                  </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#og_fields" aria-expanded="false" aria-controls="other_fields">
+                  Optional - Often not necessary
+                </a>
+              </h3>
+            </div>
+            <div id="og_fields" class="collapse">
+              <div class="panel-body">
+                <!-- Image Upload -
+                <label>OG Video (Optional):
+                  <p>Specifies a video to show if the link is posted on social media.</p>
+                  <input type="text" id="og_video" class="form-control" value="">
+                </label>
+                <label>OG URL (Optional):
+                  <p>Specifies a url to serve as the canonical identifier of the og info.</p>
+                  <input type="text" id="og_url" class="form-control" value="">
+                </label>
+                <label>OG Type (Optional):
+                  <p>Specifies a type of og content (ie article, book, etc.).</p>
+                  <input type="text" id="og_type" class="form-control" value="">
+                </label> -->
+                <label>Campaign Override (Optional):
+                  <p>This will override the default utm campaign generated from the above selections.</p>
+                  <input type="text" id="campaign_override" class="form-control" value="">
+                </label>
+
+                <label>Channel/Source Override (Optional):
+                  <p>This will override the default utm source generated from the above selections.</p>
+                  <input type="text" id="source_override" class="form-control" value="">
+                </label>
+
+                <label>Make Quick Link (Optional):
+                  <p>This will allow this link to appear in the Branch Dashboard.</p>
+                  <input type="checkbox" id="quick_link" class="form-control" name="quick_link" value="true" checked="">Yes<br>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#other_fields" aria-expanded="false" aria-controls="other_fields">
+                  Other Fields
+                </a>
+              </h3>
+            </div>
+            <div id="other_fields" class="collapse">
+              <div class="panel-body" id="extra_param_panel_body_domestic">
+                <button class="btn btn-info add-field-btn" onclick="addField(this)">Add Link Parameter</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-info" onclick="createLink()">Create Link</button><br>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <input type="text" id="final_url" class="form-control" value="Final Link Goes Here" readonly="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+
+</body></html>
