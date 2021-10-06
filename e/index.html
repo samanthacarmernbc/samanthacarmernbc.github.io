@@ -83,6 +83,7 @@
         var rawMonth = new Date().getMonth() + 1;
         var month = "";
         var defaultCampaign = "";
+        var showForCampaign = "";
 
         if (rawMonth > 9){
           month = rawMonth.toString();
@@ -100,7 +101,12 @@
         }
 
 
-        defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + '-' + show + '-' + utm_medium;
+        if (show != null && show != ""){
+          showForCampaign = '-' + show;
+        }
+
+
+        defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
 
 
         if (campaign_override != null && campaign_override != "") {
@@ -120,7 +126,11 @@
           }
         } 
 
-        tags_array.push(show,utm_source);
+        if (show != null && show != ""){
+          tags_array.push(show,utm_source);
+        } else {
+          tags_array.push(utm_source);
+        }
 
         var nbcLinkData = {
           tags: tags_array,
@@ -195,17 +205,23 @@
         //       }
         //     });
         // });
-        // Create E! Link
-        branch.link(nbcLinkData, function(err, finalLink) {
-          console.log("Creating Branch Link");
-          if (err == null) {
-            document.getElementById('final_url').value = finalLink;
-          }
-          else {
-            console.log(err, finalLink);
-            document.getElementById('final_url').value = err;
-          }
-        });
+
+        // Create E! Link, enforce required fields
+        if((canonical_url != null && canonical_url != "")&&(tags_string != null && tags_string != ""))
+        {
+          branch.link(nbcLinkData, function(err, finalLink) {
+            console.log("Creating Branch Link");
+            if (err == null) {
+              document.getElementById('final_url').value = finalLink;
+            }
+            else {
+              console.log(err, finalLink);
+              document.getElementById('final_url').value = err;
+            }
+          });
+        } else {
+          document.getElementById('final_url').value = "Make sure to fill in all required fields!";
+        }
       }
     </script>
   </head>
@@ -246,16 +262,11 @@
                     <p>Name of the link on the Branch Quick Links dashboard page. Leave blank for this to be auto-generated.</p>
                     <input type="text" id="marketing_title" class="form-control" value="">
                   </label>
-                  <label>Vanity Alias (optional):
-                    <p>Short Link Text ex: e.app.link/LinkName<br>
-                    NOTE: Cannot be updated once created</p>
-                    <input type="text" id="alias" class="form-control" value="">
-                  </label>
                   <label>Destination (Required):
                     <p>What URL do you want to link to?</p>
                     <input type="text" id="canonical_url" class="form-control" value="">
                   </label>
-                  <label>Show (Required):
+                  <label>Show (Optional):
                     <p>Which Show is this link associated with?</p>
                     <input type="text" id="show_selector" class="form-control" value="">
                   </label>
@@ -279,6 +290,8 @@
                       <option label="youtube">YouTube</option>
                       <option label="email">Email</option>
                       <option label="talent">Talent</option>
+                      <option label="community">Community</option>
+                      <option label="podcast">Podcast</option>
                       <option label="other">Other</option>
                     </select>
                   </label>
@@ -297,6 +310,10 @@
                       <option value="talent">Talent</option>
                     </select>
                   </label>
+                  <label>Tags (Required):
+                    <p>What tags should be associated with this traffic? Separate each tag with a comma. If left blank, this will still contain show name and platform.</p>
+                    <input type="text" id="tags_text" class="form-control" value="">
+                  </label>
                   <label>URL Destination (Required):
                     <p>What sort of content are you directing to?</p>
                     <select class="form-control custom-select" id="utm_medium">
@@ -312,28 +329,34 @@
                   <label>Web Only (Required):
                     <p>Should this link go only to web (not into the app)?</p>
                     <select class="form-control custom-select" id="webonly_selector">
-                      <option value="true">True</option>
                       <option value="false">False</option>
+                      <option value="true">True</option>
                     </select>
                   </label>
-                  <label>Tags (Optional):
-                    <p>What tags should be associated with this traffic? Separate each tag with a comma. If left blank, this will still contain show name and platform.</p>
-                    <input type="text" id="tags_text" class="form-control" value="">
-                  </label>
-                  <label>Fallback URL (Optional):
-                    <p>Brand URL/Fallback destination; where the user will go on desktop or mobile (instead of the app store) if they don't have the app</p>
-                    <input type="text" id="fallback_url_text" class="form-control" value="">
+                  <label>Vanity Alias (Optional):
+                    <p>Short Link Text ex: e.app.link/LinkName<br>
+                    NOTE: Cannot be updated once created</p>
+                    <input type="text" id="alias" class="form-control" value="">
                   </label>
                   <label>Deeplink Path (Optional):
-                    <p>Deeplink path of the destination in the app, ex: /shows/backyard-envy</p>
+                    <p>Deeplink path of the destination in the app, examples:
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Show page: shows/{show name} e.g. shows/saturday-night-live
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Specific episode: video/{video ID} e.g. video/9000199358
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Open to home page: home</p>
                     <input type="text" id="deeplink_path_text" class="form-control" value="">
                   </label>
                   <label>Android Deeplink Path (Optional):
-                    <p>Android-specific deeplink path of the destination in the app, ex: /shows/backyard-envy</p>
+                    <p>Android-specific deeplink path of the destination in the app, examples:
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Show page: shows/{show name} e.g. shows/saturday-night-live
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Specific episode: video/{video ID} e.g. video/9000199358
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Open to home page: home</p>
                     <input type="text" id="android_deeplink_path_text" class="form-control" value="">
                   </label>
                   <label>iOS Deeplink Path (Optional):
-                    <p>iOS-specific deeplink path of the destination in the app, ex: /shows/backyard-envy</p>
+                    <p>iOS-specific deeplink path of the destination in the app, examples:
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Show page: shows/{show name} e.g. shows/saturday-night-live
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Specific episode: video/{video ID} e.g. video/9000199358
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;Open to home page: home</p>
                     <input type="text" id="ios_deeplink_path_text" class="form-control" value="">
                   </label>
                   <label>Facebook Card Title (Optional):
@@ -347,6 +370,10 @@
                   <label>Facebook Card Image URL (Optional):
                     <p>Specifies an image to show if the link is posted on social media.</p>
                     <input type="text" id="og_image" class="form-control" value="">
+                  </label>
+                  <label>Fallback URL (Optional):
+                    <p>Brand URL/Fallback destination; where the user will go on desktop or mobile (instead of the app store) if they don't have the app</p>
+                    <input type="text" id="fallback_url_text" class="form-control" value="">
                   </label>
               </div>
             </div>
