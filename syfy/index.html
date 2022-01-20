@@ -29,6 +29,8 @@
     <script>
        var domFieldCount = 0;
        var intFieldCount = 0;
+       const liveKey = 'key_live_ckIf44PlXvUAGdc4jFsmNdkovFpnHP6b';
+       const secretKey = 'secret_live_4p5s4lOjCPiuqPn13SydjFQRCjdVx0Gz';
 
       (function(b,r,a,n,c,h,_,s,d,k){if(!b[n]||!b[n]._q){for(;s<_.length;)c(h,_[s++]);d=r.createElement(a);d.async=1;d.src="https://cdn.branch.io/branch-latest.min.js";k=r.getElementsByTagName(a)[0];k.parentNode.insertBefore(d,k);b[n]=h}})(window,document,"script","branch",function(b,r){b[r]=function(){b._q.push([r,arguments])}},{_q:[],_v:1},"addListener applyCode banner closeBanner creditHistory credits data deepview deepviewCta first getCode init link logout redeem referrals removeListener sendSMS setBranchViewData setIdentity track validateCode".split(" "), 0);
 
@@ -45,8 +47,254 @@
         element.parentElement.innerHTML += newField;
       }
 
+      
+      async function loadLinkCall(url) {
+        var loadUrl = "https://api2.branch.io/v1/url?url=" + url + "&branch_key=" + liveKey;
+        const linkData = await fetch(loadUrl);
+          
+        return linkData.json();
+      }
+
+
+      async function loadLink() {
+        var quickLink = document.getElementById('quick_link_url').value.trim();
+        const linkData = await loadLinkCall(quickLink);
+
+        var tagSet = linkData.data['~tags'];
+        var tagSource = "";
+        var showName = "";
+
+        if(tagSet){
+          tagSource = tagSet.pop();
+          if(linkData.data.utm_content){tagSet.pop();}
+        }
+        
+        document.getElementById('marketing_title').value = linkData.data['$marketing_title'];
+        if(linkData.alias){document.getElementById('alias').value = linkData.alias;}
+        if(linkData.data['$canonical_url']){document.getElementById('canonical_url').value = linkData.data['$canonical_url'];}
+        if(linkData.data.utm_content){document.getElementById('show_selector').value = linkData.data.utm_content;}
+        if(linkData.channel){document.getElementById('channel_selector').value = linkData.channel;}
+
+        if(linkData.data.campaign_type){document.getElementById('campaign_type_selector').value = linkData.data.campaign_type;}
+
+        if(linkData.campaign !== linkData.data['$marketing_title']){
+          if(linkData.campaign){document.getElementById('campaign_override').value = linkData.campaign;}
+        }
+        document.getElementById('source_selector').value = tagSource;
+
+        if(tagSource != linkData.data.utm_source){
+          if(linkData.data.utm_source){document.getElementById('source_override').value = linkData.data.utm_source;}
+        } 
+
+        if(linkData.data["~marketing"]){
+          document.getElementById('quick_link').checked = linkData.data["~marketing"];
+        } else {
+          document.getElementById('quick_link').checked = false;
+        }
+
+
+        if(linkData.data.utm_medium){document.getElementById('utm_medium').value = linkData.data.utm_medium;}
+
+        if(linkData.data["$web_only"]){document.getElementById('webonly_selector').value = linkData.data["$web_only"];}
+
+        if(linkData.data['$fallback_url']){document.getElementById('fallback_url_text').value = linkData.data['$fallback_url'];}
+        if(linkData.data['$deeplink_path']){document.getElementById('deeplink_path_text').value = linkData.data['$deeplink_path'];}
+        if(linkData.data['$android_deeplink_path']){document.getElementById('android_deeplink_path_text').value = linkData.data['$android_deeplink_path'];}
+        if(linkData.data['$ios_deeplink_path']){document.getElementById('ios_deeplink_path_text').value = linkData.data['$ios_deeplink_path'];}
+
+        if(tagSet){
+          document.getElementById('tags_text').value = tagSet.toString();
+        }
+
+        if(linkData.data['$og_title']){document.getElementById('og_title').value = linkData.data['$og_title'];}
+        if(linkData.data['$og_description']){document.getElementById('og_description').value = linkData.data['$og_description'];}
+        if(linkData.data['$og_image_url']){document.getElementById('og_image').value = linkData.data['$og_image_url'];}
+
+        document.getElementById("update-btn").style.display = "block";
+
+      }
+
+      async function runUpdate(updateUrl,data) {
+        
+        const resp = await fetch(updateUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: data
+        });
+          
+        return resp;
+      }
+
+      async function updateLink(){
+        var quickLink = document.getElementById('quick_link_url').value.trim();
+        var updateUrl = "https://api2.branch.io/v1/url?url=" + quickLink;
+
+        var marketingTitle = document.getElementById('marketing_title').value.trim();
+        var alias = document.getElementById('alias').value.trim();
+        var canonical_url = document.getElementById('canonical_url').value.trim();
+        var show = document.getElementById('show_selector').value.trim();
+        var channel_selector = document.getElementById('channel_selector').value;
+        var campaign_type = document.getElementById('campaign_type_selector').value;
+        var utm_source = document.getElementById('source_selector').value;
+        var campaign_override = document.getElementById('campaign_override').value.trim();
+        var source_override = document.getElementById('source_override').value.trim();
+        var quick_link = document.getElementById('quick_link').checked;
+        var utm_medium = document.getElementById('utm_medium').value.trim();
+        var web_only = document.getElementById('webonly_selector').value;
+        var fallback_url = document.getElementById('fallback_url_text').value.trim();
+        var deeplink_path = document.getElementById('deeplink_path_text').value.trim();
+        var android_deeplink_path = document.getElementById('android_deeplink_path_text').value.trim();
+        var ios_deeplink_path = document.getElementById('ios_deeplink_path_text').value.trim();
+        var tags_string = document.getElementById('tags_text').value.trim();
+
+
+        var ogTitle = document.getElementById('og_title').value.trim();
+        var ogDescription = document.getElementById('og_description').value.trim();
+        var ogImage = document.getElementById('og_image').value.trim();
+        //var ogUrl = document.getElementById('og_url').value.trim();
+        //var ogVideo = document.getElementById('og_video').value.trim();
+        //var ogType = document.getElementById('og_type').value.trim();
+
+        var campaign = "";
+        var channel = "";
+        var source = "";
+
+        var tags_array = [];
+
+        var rawMonth = new Date().getMonth() + 1;
+        var month = "";
+        var defaultCampaign = "";
+        var showForCampaign = "";
+
+        if (rawMonth > 9){
+          month = rawMonth.toString();
+        } else {
+          month = '0' + rawMonth.toString();
+        }
+
+
+        if (source_override != null && source_override != "") {
+          channel = source_override;
+          source = source_override;
+        } else {
+          channel = channel_selector;
+          source = utm_source;
+        }
+
+
+        if (show != null && show != ""){
+          showForCampaign = '-' + show;
+        }
+
+
+        defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
+
+
+        if (campaign_override != null && campaign_override != "") {
+          campaign = campaign_override;
+        } else {
+          campaign = defaultCampaign;
+        }
+
+        if (marketingTitle == null || marketingTitle == ""){ marketingTitle = defaultCampaign }
+
+        if (tags_string != null && tags_string != ""){
+          if (tags_string.includes(',')){
+            var tags_split = tags_string.split(',');
+            tags_split.forEach(element => tags_array.push(element.trim()));
+          } else {
+            tags_array.push(tags_string);
+          }
+        } 
+
+        if (show != null && show != ""){
+          tags_array.push(show,utm_source);
+        } else {
+          tags_array.push(utm_source);
+        }
+
+        var nbcLinkData = {
+          branch_key: liveKey,
+          branch_secret: secretKey,
+          tags: tags_array,
+          channel: channel,
+          campaign: campaign,
+          data: {
+          "$marketing_title": marketingTitle,
+          "$canonical_url":canonical_url,
+          "utm_campaign": campaign,
+          "utm_term": channel,
+          "utm_source": source,
+          "utm_medium": utm_medium,
+          "utm_content": show,
+          "campaign_type": campaign_type
+          }
+        };
+
+        //set og parameters
+        if (ogTitle != null && ogTitle != "") { nbcLinkData.data["$og_title"] = ogTitle }
+        if (ogDescription != null && ogDescription != "") { nbcLinkData.data["$og_description"] = ogDescription }
+        if (ogImage != null && ogImage != "") { nbcLinkData.data["$og_image_url"] = ogImage }
+        if (web_only != null && web_only != "false") { nbcLinkData.data["$web_only"] = web_only }
+        if (deeplink_path != null && deeplink_path != "") { nbcLinkData.data["$deeplink_path"] = deeplink_path }
+        if (android_deeplink_path != null && android_deeplink_path != "") { nbcLinkData.data["$android_deeplink_path"] = android_deeplink_path }
+        if (ios_deeplink_path != null && ios_deeplink_path != "") { nbcLinkData.data["$ios_deeplink_path"] = ios_deeplink_path }
+
+        if (fallback_url != null && fallback_url != "") {
+          nbcLinkData.data["$fallback_url"] = fallback_url;
+          nbcLinkData.data["$desktop_url"] = fallback_url;
+        } else {
+          nbcLinkData.data["$desktop_url"] = canonical_url;
+        }
+
+        //set quick link
+        if (quick_link) {
+          nbcLinkData.data["~marketing"] = true;
+        }
+
+        var i;
+        for (i = 1; i <= intFieldCount; i++) {
+          var key = document.getElementById('extra_param_panel_body_international_key_' + i).value;
+          var value = document.getElementById('extra_param_panel_body_international_value_' + i).value;
+          if (key != null && key != "" && value != null) { // allowing for an empty value, but not an empty key
+            console.log('int key: ' + key);
+            console.log('int value: ' + value);
+            nbcLinkData.data[key] = value;
+          }
+        }
+
+        if((canonical_url != null && canonical_url != "")&&(tags_string != null && tags_string != ""))
+        {
+          var updateResult = await runUpdate(updateUrl,JSON.stringify(nbcLinkData));
+
+          if(updateResult.status = '200') {
+            document.getElementById('final_url').value = quickLink + " has been updated!";
+          } else {
+            document.getElementById('final_url').value = updateResult.status + " error was encountered";
+          }
+
+//          branch.link(nbcLinkData, function(err, finalLink) {
+//            console.log("Creating Branch Link");
+//            if (err == null) {
+//              document.getElementById('final_url').value = finalLink;
+//            }
+//            else {
+//              console.log(err, finalLink);
+//              document.getElementById('final_url').value = err;
+//            }
+//          });
+        } else {
+          document.getElementById('final_url').value = "Make sure to fill in all required fields!";
+        }
+
+        
+      }
+
+
       function createLink() {
-        branch.init('key_live_ckIf44PlXvUAGdc4jFsmNdkovFpnHP6b');
+        branch.init(liveKey);
 
         var marketingTitle = document.getElementById('marketing_title').value.trim();
         var alias = document.getElementById('alias').value.trim();
@@ -143,7 +391,8 @@
           "utm_term": channel,
           "utm_source": source,
           "utm_medium": utm_medium,
-          "utm_content": show
+          "utm_content": show,
+          "campaign_type": campaign_type
           }
         };
 
@@ -206,7 +455,7 @@
         //     });
         // });
 
-        // Create SYFY Link, enforce required fields
+        // Create Syfy Link, enforce required fields
         if((canonical_url != null && canonical_url != "")&&(tags_string != null && tags_string != ""))
         {
           branch.link(nbcLinkData, function(err, finalLink) {
@@ -243,7 +492,27 @@
     <div class="container">
       <div class="panel-header page-header">
         <br>
-        SYFY Link Creator
+        Syfy Link Creator
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#basic_fields" aria-expanded="false" aria-controls="other_fields">
+              Update Link
+            </a>
+          </h3>
+        </div>
+        <div id="basic_fields" class="collapse show">
+          <div class="panel-body">
+            <label>Link to Update:
+            <p>Full URL of the link you're looking to update.</p>
+                <input type="text" id="quick_link_url" class="form-control" value="">
+            </label>
+          </div>
+          <div class="panel-body">
+            <button class="btn btn-info" onclick="loadLink()">Load Link Data</button><br>
+          </div>
+        </div>
       </div>
       <div class="panel panel-default">
         <div class="panel-body">
@@ -308,10 +577,6 @@
                       <option value="tune-in">Tune In</option>
                       <option value="journey">Journey</option>
                       <option value="talent">Talent</option>
-                      <option value="talent">Community</option>
-                      <option value="talent">Podcast</option>
-                      <option value="talent">Link in Bio</option>
-                      <option value="talent">Other</option>
                     </select>
                   </label>
                   <label>Tags (Required):
@@ -439,12 +704,19 @@
             </div>
           </div>
 
-          <button class="btn btn-info" onclick="createLink()">Create Link</button><br>
+          <button class="btn btn-info" onclick="createLink()">Create New Link</button>
+          
+          <button id="update-btn" class="btn btn-info" style="display:none;" onclick="updateLink()">Update Link</button><br>
+          
+
           <div class="panel panel-default">
             <div class="panel-body">
-              <input type="text" id="final_url" class="form-control" value="Final Link Goes Here" readonly="">
+              <input type="text" id="final_url" class="form-control" value="" readonly="">
             </div>
           </div>
+
+          <button class="btn btn-info" onclick="location.reload()">Clear Form</button><br>
+
         </div>
       </div>
     </div>
