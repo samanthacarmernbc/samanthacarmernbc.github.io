@@ -29,6 +29,7 @@
     <script>
        var domFieldCount = 0;
        var intFieldCount = 0;
+       var campaignDate = "";
        const liveKey = 'key_live_plKpW4Je7tJBlQVaVBkD8hhfsxf5Oj96';
        const secretKey = 'secret_live_HwGS6hUl480gt3zHEYF3S0eeSKUXnyw8';
 
@@ -63,13 +64,19 @@
         var tagSet = linkData.data['~tags'];
         var tagSource = "";
         var showName = "";
+        var expectedDefaultCampaign = "";
 
         if(tagSet){
           tagSource = tagSet.pop();
           if(linkData.data.utm_content){tagSet.pop();}
         }
         
-        document.getElementById('marketing_title').value = linkData.data['$marketing_title'];
+        
+        if (linkData.data['$marketing_title'] !== linkData.campaign){
+          document.getElementById('marketing_title').value = linkData.data['$marketing_title'];
+        }
+
+
         if(linkData.alias){document.getElementById('alias').value = linkData.alias;}
         if(linkData.data['$canonical_url']){document.getElementById('canonical_url').value = linkData.data['$canonical_url'];}
         if(linkData.data.utm_content){document.getElementById('show_selector').value = linkData.data.utm_content;}
@@ -77,9 +84,18 @@
 
         if(linkData.data.campaign_type){document.getElementById('campaign_type_selector').value = linkData.data.campaign_type;}
 
-        if(linkData.campaign !== linkData.data['$marketing_title']){
+        
+        if (linkData.data.utm_content != null && linkData.data.utm_content != ""){
+          showName = '-' + linkData.data.utm_content;
+        }
+
+        expectedDefaultCampaign = "-organic-" + linkData.channel + '-' + linkData.data.utm_source + '-' + linkData.data.campaign_type + showName + '-' + linkData.data.utm_medium;
+
+        if(linkData.campaign.substring(7) !== expectedDefaultCampaign){
           if(linkData.campaign){document.getElementById('campaign_override').value = linkData.campaign;}
         }
+        campaignDate = linkData.campaign.substring(0,7);
+
         document.getElementById('source_selector').value = tagSource;
 
         if(tagSource != linkData.data.utm_source){
@@ -168,6 +184,8 @@
         var defaultCampaign = "";
         var showForCampaign = "";
 
+        var dateForCampaign
+
         if (rawMonth > 9){
           month = rawMonth.toString();
         } else {
@@ -188,8 +206,14 @@
           showForCampaign = '-' + show;
         }
 
+        if(campaignDate.match(/\d\d\d\d\-\d\d/)){
+          dateForCampaign = campaignDate;
+        } else {
+          dateForCampaign = new Date().getFullYear() + '-' + month;
+        }
 
-        defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
+
+        defaultCampaign = dateForCampaign + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
 
 
         if (campaign_override != null && campaign_override != "") {
@@ -197,6 +221,8 @@
         } else {
           campaign = defaultCampaign;
         }
+
+        console.log(campaign);
 
         if (marketingTitle == null || marketingTitle == ""){ marketingTitle = defaultCampaign }
 
