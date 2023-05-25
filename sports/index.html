@@ -26,6 +26,28 @@
 <script src="bootstrap.min.js"></script>
 <link rel="stylesheet" href="bootstrap.min.css">
 
+<style>
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  p {
+    font-weight:400;
+  }
+
+  .btn {
+    font-weight:bold;
+    font-size:18px;
+    line-height: 40px;
+    width:250px;
+    border:0;
+    background-color:#b0b0b0;
+    border-radius: 0px;
+  }
+
+</style>
+
     <script>
        var domFieldCount = 0;
        var intFieldCount = 0;
@@ -61,6 +83,13 @@
         var quickLink = document.getElementById('quick_link_url').value.trim();
         const linkData = await loadLinkCall(quickLink);
 
+        // BROWSER TROUBLESHOOTING 
+        console.log(linkData);
+        // console.log(linkData.data['~feature']);
+        // console.log(linkData.feature);
+        // console.log(linkData.campaign);
+
+
         var tagSet = linkData.data['~tags'];
         var tagSource = "";
         var showName = "";
@@ -72,7 +101,7 @@
         }
         
         
-        if (linkData.data['$marketing_title'] !== linkData.campaign){
+        if (linkData.data['$marketing_title']){
           document.getElementById('marketing_title').value = linkData.data['$marketing_title'];
         }
 
@@ -89,11 +118,11 @@
           showName = '-' + linkData.data.utm_content;
         }
 
-        expectedDefaultCampaign = "-organic-" + linkData.channel + '-' + linkData.data.utm_source + '-' + linkData.data.campaign_type + showName + '-' + linkData.data.utm_medium;
+        // expectedDefaultCampaign = "-organic-" + linkData.channel + '-' + linkData.data.utm_source + '-' + linkData.data.campaign_type + showName + '-' + linkData.data.utm_medium;
 
-        if(linkData.campaign.substring(7) !== expectedDefaultCampaign){
-          if(linkData.campaign){document.getElementById('campaign_override').value = linkData.campaign;}
-        }
+        // if(linkData.campaign.substring(7) !== expectedDefaultCampaign){
+        if(linkData.campaign){document.getElementById('campaign_override').value = linkData.campaign;}
+        // }
         campaignDate = linkData.campaign.substring(0,7);
 
         document.getElementById('source_selector').value = tagSource;
@@ -213,15 +242,11 @@
         }
 
 
-        defaultCampaign = dateForCampaign + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
+        // defaultCampaign = dateForCampaign + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
 
 
-        if (campaign_override != null && campaign_override != "") {
-          campaign = campaign_override;
-        } else {
-          campaign = defaultCampaign;
-        }
-
+        campaign = campaign_override;
+        defaultCampaign = campaign.slice(0,49);
         console.log(campaign);
 
         if (marketingTitle == null || marketingTitle == ""){ marketingTitle = defaultCampaign }
@@ -291,7 +316,7 @@
           }
         }
 
-        if((canonical_url != null && canonical_url != "")&&(tags_string != null && tags_string != ""))
+        if((canonical_url != null && canonical_url != "")&&(campaign != null && campaign != ""))
         {
           var updateResult = await runUpdate(updateUrl,JSON.stringify(nbcLinkData));
 
@@ -380,14 +405,11 @@
         }
 
 
-        defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
+        // defaultCampaign = new Date().getFullYear() + '-' + month + "-organic-" + channel + '-' + utm_source + '-' + campaign_type + showForCampaign+ '-' + utm_medium;
 
 
-        if (campaign_override != null && campaign_override != "") {
-          campaign = campaign_override;
-        } else {
-          campaign = defaultCampaign;
-        }
+        campaign = campaign_override;
+        defaultCampaign = campaign.slice(0,49);
 
         if (marketingTitle == null || marketingTitle == ""){ marketingTitle = defaultCampaign }
 
@@ -483,12 +505,14 @@
         // });
 
         // Create NBC Sports Link, enforce required fields
-        if((canonical_url != null && canonical_url != "")&&(tags_string != null && tags_string != ""))
+        if((canonical_url != null && canonical_url != "")&&(campaign != null && campaign != ""))
         {
           branch.link(nbcLinkData, function(err, finalLink) {
             console.log("Creating Branch Link");
             if (err == null) {
               document.getElementById('final_url').value = finalLink;
+              navigator.clipboard.writeText(finalLink);
+              document.getElementById('final_url').value = finalLink + " | This link has been copied to your clipboard.";
             }
             else {
               console.log(err, finalLink);
@@ -508,7 +532,7 @@
       <div class="container">
         <div class="navbar-header">
           <div class="navbar-brand brand">
-            <a href="https://urldefense.com/v3/__https://branch.io/__;!!PIZeeW5wscynRQ!rmxhZks-r1V9tH2I1EKLPV0zdDU2U_nQkkb7n6CPIfyFUeEBSCmnkcMolJPmInYZz0yFReOetvkR88-xDeRFibMDTMFsoQ$" target="_blank" class="logo-container">
+            <a href="https://branch.io/" target="_blank" class="logo-container">
               <div class="branch-logo"><img src="logo_white.png" alt="BranchMetrics" title="Branch Metrics"></div>
             </a>
           </div>
@@ -558,6 +582,10 @@
                     <p>Name of the link on the Branch Quick Links dashboard page. Leave blank for this to be auto-generated.</p>
                     <input type="text" id="marketing_title" class="form-control" value="">
                   </label>
+                  <label>Link Name (Required):
+                    <p>This will be the campaign analytics tag for the link.</p>
+                    <input type="text" id="campaign_override" class="form-control" value="">
+                  </label>
                   <label>Destination (Required):
                     <p>What URL do you want to link to?</p>
                     <input type="text" id="canonical_url" class="form-control" value="">
@@ -566,49 +594,19 @@
                     <p>Which Show is this link associated with?</p>
                     <input type="text" id="show_selector" class="form-control" value="">
                   </label>
-                  <label>Channel (Required):
+                  <label>Channel (Optional):
                     <p>Where will you post this link?</p>
-                    <select class="form-control custom-select" id="channel_selector">
-                      <option value="social">Social</option>
-                      <option value="web">Web</option>
-                      <option value="email">Email</option>
-                      <option value="other">Other</option>
-                    </select>
+                    <input type="text" id="channel_selector" class="form-control" value="">
                   </label>
-                  <label>Platform (Required):
+                  <label>Platform (Optional):
                     <p>Where will this link be posted?</p>
-                    <select class="form-control custom-select" id="source_selector">
-                      <option value="dotcom">DotCom</option>
-                      <option label="facebook">Facebook</option>
-                      <option label="instagram">Instagram</option>
-                      <option value="twitter">Twitter</option>
-                      <option label="snapchat">Snapchat</option>
-                      <option label="youtube">YouTube</option>
-                      <option label="email">Email</option>
-                      <option label="talent">Talent</option>
-                      <option label="community">Community</option>
-                      <option label="podcast">Podcast</option>
-                      <option label="pushly">Pushly</option>
-                      <option label="other">Other</option>
-                    </select>
+                    <input type="text" id="source_selector" class="form-control" value="">
                   </label>
-                  <label>Campaign Type (Required):
+                  <label>Campaign Type (Optional):
                     <p>What type of campaign is this?</p>
-                    <select class="form-control custom-select" id="campaign_type_selector">
-                      <option value="link-post">Link Post</option>
-                      <option value="blog-post-testing">Blog Post Testing</option>
-                      <option value="show-page-testing">Show Page Testing</option>
-                      <option value="site-nav">Site Nav</option>
-                      <option value="newsletter">Newsletter</option>
-                      <option value="youtube">YouTube</option>
-                      <option value="app-download">App Download</option>
-                      <option value="tune-in">Tune In</option>
-                      <option value="journey">Journey</option>
-                      <option value="talent">Talent</option>
-                      <option value="web-push">Web Push</option>
-                    </select>
+                    <input type="text" id="campaign_type_selector" class="form-control" value="">
                   </label>
-                  <label>Tags (Required):
+                  <label>Tags (Optional):
                     <p>What tags should be associated with this traffic? Separate each tag with a comma. If left blank, this will still contain show name and platform.</p>
                     <input type="text" id="tags_text" class="form-control" value="">
                   </label>
@@ -677,7 +675,7 @@
             </div>
           </div>
 
-          <div class="panel panel-default">
+          <div class="panel panel-default" style="display:none;">
             <div class="panel-heading">
               <h3 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion" href="#og_fields" aria-expanded="false" aria-controls="other_fields">
@@ -700,10 +698,10 @@
                   <p>Specifies a type of og content (ie article, book, etc.).</p>
                   <input type="text" id="og_type" class="form-control" value="">
                 </label> -->
-                <label>Campaign Override (Optional):
+<!--                 <label>Campaign Override (Optional):
                   <p>This will override the default utm campaign generated from the above selections.</p>
                   <input type="text" id="campaign_override" class="form-control" value="">
-                </label>
+                </label> -->
 
                 <label>Channel/Source Override (Optional):
                   <p>This will override the default utm source generated from the above selections.</p>
@@ -722,7 +720,7 @@
             <div class="panel-heading">
               <h3 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion" href="#other_fields" aria-expanded="false" aria-controls="other_fields">
-                  Other Fields
+                  Add Parameters
                 </a>
               </h3>
             </div>
